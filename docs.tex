@@ -1,0 +1,177 @@
+\documentclass[12pt,a4paper]{article}
+
+% Niezbędne pakiety
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[polish]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{setspace}
+\usepackage{hyperref}
+
+% Ustawienia marginesów i interlinii (dla lepszej czytelności i objętości)
+\geometry{margin=2.5cm}
+\onehalfspacing
+
+% Konfiguracja linków
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,      
+    urlcolor=blue,
+    pdftitle={Dokumentacja Funkcjonalna - Java Swing},
+}
+
+\begin{document}
+
+% ==================== STRONA TYTUŁOWA ====================
+\begin{titlepage}
+    \centering
+    \vspace*{3cm}
+    
+    {\scshape\LARGE Projekt JIMP 2026 \par}
+    \vspace{1.5cm}
+    {\huge\bfseries Dokumentacja Funkcjonalna\par}
+    \vspace{0.5cm}
+    {\Large Aplikacja z Graficznym Interfejsem Użytkownika (Java Swing) \par}
+    
+    \vspace{2cm}
+    \textbf{Moduł analityczny i wizualizacja podziału grafów planarnych}
+    
+    \vfill
+    
+    \begin{flushright}
+        \large
+        \textbf{Autorzy:}\\
+        Ksawey Kuczyński\\
+        Olaf Wodecki
+    \end{flushright}
+    
+
+\end{titlepage}
+
+\newpage
+% ==================== SPIS TREŚCI ====================
+\tableofcontents
+\newpage
+
+% ==================== WSTĘP ====================
+\section{Wstęp i Cel projektu}
+Niniejszy dokument stanowi specyfikację funkcjonalną drugiej części projektu realizowanego w ramach przedmiotu JIMP. Aplikacja została stworzona w języku Java z wykorzystaniem biblioteki graficznej Swing. 
+
+Głównym celem programu jest dostarczenie użytkownikowi końcowemu intuicyjnego narzędzia okienkowego do wczytywania, analizy oraz wizualizacji grafów. Aplikacja ściśle współpracuje z modułem obliczeniowym napisanym w języku C, potrafiąc wczytywać wygenerowane przez niego pliki wynikowe (zarówno w formacie tekstowym, jak i zoptymalizowanym formacie binarnym).
+
+Kluczową funkcjonalnością aplikacji jest \textbf{dokonywanie podziału grafu} na zadaną przez użytkownika liczbę rozłącznych części, przy zachowaniu równomierności podziału określanej za pomocą procentowego marginesu błędu. Wyniki tych operacji są natychmiastowo odzwierciedlane na ekranie, gdzie poszczególne podgrafy zyskują unikalne kolory.
+
+\section{Wymagania systemowe i uruchomienie}
+Aplikacja została zaprojektowana jako rozwiązanie wieloplatformowe (\textit{cross-platform}), co wynika z natury środowiska uruchomieniowego Java.
+\begin{itemize}
+    \item \textbf{Środowisko uruchomieniowe:} Java Runtime Environment (JRE) w wersji 11 lub nowszej.
+    \item \textbf{Interfejs graficzny:} Środowisko graficzne (X11/Wayland w systemach Linux, Windows DWM lub macOS WindowServer).
+    \item \textbf{Uruchomienie:} Program nie wymaga instalacji. Uruchamiany jest z poziomu wiersza poleceń wywołaniem: \texttt{java -jar GraphPartitioner.jar} lub poprzez dwukrotne kliknięcie pliku wykonywalnego JAR.
+\end{itemize}
+
+\newpage
+% ==================== ARCHITEKTURA GUI ====================
+\section{Architektura Interfejsu Użytkownika}
+Interfejs graficzny został zaprojektowany z myślą o minimalizmie i ergonomii. Okno główne programu (reprezentowane przez klasę \texttt{JFrame}) zostało logicznie podzielone na trzy niezależne obszary operacyjne.
+
+\subsection{Pasek Menu (Menu Bar)}
+Znajduje się w górnej krawędzi okna aplikacji. Odpowiada za operacje wejścia/wyjścia na plikach.
+\begin{itemize}
+    \item \textbf{Plik $\rightarrow$ Wczytaj graf (TXT):} Otwiera okno wyboru pliku (\texttt{JFileChooser}) z filtrem rozszerzeń \texttt{.txt} lub \texttt{.csrrg}.
+    \item \textbf{Plik $\rightarrow$ Wczytaj graf (BIN):} Pozwala na szybkie załadowanie wielkich grafów zrzucanych binarnie przez moduł w C.
+    \item \textbf{Plik $\rightarrow$ Zapisz wynik podziału:} Eksportuje pokolorowany i podzielony graf z powrotem do pliku tekstowego na dysku.
+    \item \textbf{Zakończ:} Bezpieczne zamknięcie aplikacji.
+\end{itemize}
+
+\subsection{Panel Narzędziowy (Control Panel)}
+Znajduje się z lewej strony okna głównego i zawiera interaktywne kontrolki formularza. To tutaj użytkownik decyduje o parametrach działania algorytmu.
+
+\begin{table}[h]
+    \centering
+    \begin{tabularx}{\textwidth}{|l|X|}
+    \hline
+    \textbf{Kontrolka} & \textbf{Opis i zachowanie} \\ \hline
+    Pole tekstowe (Partycje) & Służy do wpisania docelowej liczby części, na które ma zostać podzielony graf. Wartość domyślna to 2. \\ \hline
+    Suwak (Margines \%) & Pozwala zdefiniować procentowy margines tolerancji wielkości podziałów (od 0\% do 100\%). Wartość domyślna to 10\%. \\ \hline
+    Checkbox (Wagi) & Przełącznik ukrywający lub pokazujący etykiety wag na krawędziach grafu w celu poprawy czytelności. \\ \hline
+    Przycisk \textit{Podziel Graf} & Główny przycisk wyzwalający algorytm. Po jego kliknięciu program waliduje dane i przerysowuje płótno. \\ \hline
+    \end{tabularx}
+    \caption{Opis kontrolek panelu narzędziowego}
+\end{table}
+
+\subsection{Przestrzeń Robocza (Graph Canvas)}
+Najważniejszy element aplikacji, zajmujący centralną i największą część okna. Jest to dedykowany komponent, w którym nadpisano metodę \texttt{paintComponent(Graphics g)}. 
+
+Dzięki samodzielnej implementacji renderowania, przestrzeń robocza pozwala na:
+\begin{itemize}
+    \item Skalowanie i wyśrodkowywanie grafu niezależnie od rozmiarów okna.
+    \item Przypisywanie unikalnych kolorów wierzchołkom należącym do różnych partycji (np. zbiór A = czerwony, zbiór B = niebieski, zbiór C = zielony).
+    \item Rysowanie krawędzi łączących odpowiednie wierzchołki.
+\end{itemize}
+
+\newpage
+% ==================== SCENARIUSZE UŻYCIA ====================
+\section{Scenariusze użycia i przykłady wizualne}
+
+Poniżej przedstawiono standardowy proces pracy z programem z perspektywy końcowego użytkownika.
+
+\subsection{Krok 1: Wczytanie surowych danych}
+Użytkownik po uruchomieniu programu wybiera z paska menu opcję wczytania danych. Po załadowaniu pliku wygenerowanego przez aplikację C, na ekranie pojawia się struktura grafu bazowego. W tym momencie wszystkie wierzchołki mają jednakowy kolor, ponieważ podział nie został jeszcze dokonany.
+
+% MIEJSCE NA ZRZUT EKRANU 1
+\begin{figure}[h]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{screen1.png}
+    % Zastępcze pole:
+    \textcolor{gray}{\rule{0.8\textwidth}{6cm}}
+    \caption{Widok głównego okna po wczytaniu bazowego grafu (przed podziałem).}
+\end{figure}
+
+\subsection{Krok 2: Parametryzacja i Podział}
+W panelu narzędziowym użytkownik ustala liczbę części (np. 3) oraz margines (np. 15\%). Po wciśnięciu przycisku \textit{,,Podziel Graf''}, aplikacja przetwarza strukturę. Rysunek aktualizuje się, a wierzchołki przybierają 3 różne kolory oznaczające ich przynależność.
+
+% MIEJSCE NA ZRZUT EKRANU 2
+\begin{figure}[h]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{screen2.png}
+    % Zastępcze pole:
+    \textcolor{gray}{\rule{0.8\textwidth}{6cm}}
+    \caption{Wizualizacja grafu podzielonego na 3 rozłączne części (reprezentowane różnymi kolorami).}
+\end{figure}
+
+\newpage
+% ==================== BŁĘDY I ZABEZPIECZENIA ====================
+\section{Sytuacje wyjątkowe i komunikaty o błędach}
+
+Aby zapewnić stabilność środowiska i zapobiec awariom wynikającym z pomyłek użytkownika, aplikacja na bieżąco weryfikuje stany komponentów. W przypadku wykrycia nieprawidłowości, interfejs graficzny wyświetla wyskakujące okna dialogowe (\textit{JOptionPane}) blokujące działanie do czasu usunięcia problemu.
+
+Poniższa tabela zbiera wszystkie kluczowe wyjątki obsługiwane przez program:
+
+\vspace{0.5cm}
+\begin{table}[h]
+    \centering
+    \renewcommand{\arraystretch}{1.5}
+    \begin{tabularx}{\textwidth}{|p{3.5cm}|X|p{3.5cm}|}
+    \hline
+    \textbf{Sytuacja} & \textbf{Opis zachowania programu i przyczyna} & \textbf{Reakcja GUI} \\ \hline
+    
+    \textbf{Błąd odczytu I/O} & Użytkownik wskazał plik, który nie istnieje, został usunięty w trakcie odczytu lub aplikacja nie ma uprawnień do jego otwarcia. & Okno błędu: \textit{,,Błąd systemu: Nie można otworzyć wskazanego pliku.''} Płótno pozostaje puste. \\ \hline
+    
+    \textbf{Zły format pliku} & Zawartość wybranego pliku nie zgadza się ze specyfikacją (np. podano plik MP3 zamiast pliku z grafem, lub plik tekstowy ma uszkodzone linie). & Okno błędu: \textit{,,Zły format danych. Upewnij się, że plik pochodzi z aplikacji C.''} \\ \hline
+    
+    \textbf{Niewłaściwe parametry wejścia} & Użytkownik wpisał w polu ,,Liczba części'' wartość ujemną, wartość $1$ lub tekst (np. litery). & Okno ostrzegawcze: \textit{,,Podano niewłaściwe parametry. Liczba części musi być liczbą całkowitą $>1$.''} Przycisk podziału jest ignorowany. \\ \hline
+    
+    \textbf{Zła kolejność operacji} & Użytkownik próbuje wcisnąć przycisk ,,Podziel Graf'' lub zmienić widok zanim jakikolwiek plik zostanie wczytany do pamięci. & Komunikat: \textit{,,Najpierw załaduj plik z grafem używając paska Menu.''} \\ \hline
+    
+    \end{tabularx}
+    \caption{Zestawienie sytuacji wyjątkowych i reakcji interfejsu graficznego}
+\end{table}
+
+\section{Podsumowanie funkcjonalności}
+Zaprojektowany interfejs graficzny ściśle realizuje wszystkie założenia specyfikacji. Dzięki wyizolowaniu paska poleceń, panelu ustawień i własnego komponentu renderującego, aplikacja jest wysoce skalowalna. Daje to w przyszłości możliwość łatwego dodawania kolejnych opcji (np. powiększania fragmentów grafu rolką myszy) bez konieczności przebudowywania układu okna głównego.
+
+\end{document}
