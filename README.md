@@ -18,3 +18,10 @@ W trakcie semestru może nastąpić niewielkie zmiany/doprecyzowanie niektórych
 - Dokumentacja końcowa projektu (z diagramem klas).
 
 W ramach dokumentacji końcowej należy zawrzeć pełen opis projektu﻿﻿ (analogicznie jak w części z języka C) rozszerzony o pełen diagram wykorzystanych klas (dopuszczalne wykorzystanie narzędzi pomocniczych do generowania diagramu) oraz informacji koniecznych do przekazania zespołowi programistycznemu. W diagramie klas nie należy uwzględniać klas systemowych chyba, że wymaga tego opis wykorzystywanej funkcjonalności.
+
+### Odpalanie projektu Java
+W folderze app
+```
+./gradlew run
+```
+
