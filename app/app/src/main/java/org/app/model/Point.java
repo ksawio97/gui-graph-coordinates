@@ -2,9 +2,10 @@
 package org.app.model;
 
 public class Point {
-    private double id, x, y;
+    private String id; 
+    private double x, y;
 
-    public Point(double id, double x, double y) {
+    public Point(String id, double x, double y) {
         this.id = id;
         this.x = x;
         this.y = y;

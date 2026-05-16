@@ -47,7 +47,12 @@ public class GraphDataController implements IGraphDataController {
         this.outFileType = fileType;
 
         // refresh our Points data
-        points = fileHandler.load_points_data(iFileName, fileType);
+        try {
+            points = fileHandler.load_points_data(oFileName, fileType);
+        } catch(IOException e) {
+            System.out.print("IOException: couldn't read points from " + oFileName);
+        }
+
         onPointsChanged.forEach(f -> f.onChanged(points));
     }
 

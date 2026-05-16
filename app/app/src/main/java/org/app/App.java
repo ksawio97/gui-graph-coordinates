@@ -1,21 +1,24 @@
 package org.app;
 
 
-import java.io.File;
-
-import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import org.app.controller.GraphDataController;
+import org.app.model.FileType;
+import org.app.model.Point;
 import org.app.model.Vertex;
+import org.app.view.FileButton;
 
 
 public class App {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Graph Coordinates");
-            GraphDataController graphDataController = new GraphDataController();
             
+            GraphDataController graphDataController = new GraphDataController();
+ 
             graphDataController.registerOnVerticesChanged((verticies) -> {
                 // print all verticies for testing
                 for (Vertex v : verticies) {
@@ -23,32 +26,30 @@ public class App {
                 }
             });
 
-            JButton openButton = new JButton("Load Vertex File...");
+            FileButton inButton = new FileButton("Input file", frame, (file) -> {
+                String filePath = file.getAbsolutePath();
+                graphDataController.setInputFile(filePath);
+            }, true);
 
-            openButton.addActionListener(event -> {
-                JFileChooser fileChooser = new JFileChooser();
-                fileChooser.setDialogTitle("Select Input Text File");
-
-                FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files (*.txt)", "txt");
-                fileChooser.setFileFilter(filter);
-
-                // Open the desktop file picker window
-                int result = fileChooser.showOpenDialog(frame);
-
-                // Check if the user actually clicked "Open"
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    File selectedFile = fileChooser.getSelectedFile();
-                    String filePath = selectedFile.getAbsolutePath();
-
-
-                    graphDataController.setInputFile(filePath);
-                } else {
-                    System.out.println("File selection cancelled.");
+            graphDataController.registerOnPointsChanged((points) -> {
+                // print all points for testing
+                for (Point point : points) {
+                    System.out.print(point.toString() + "\n");
                 }
             });
 
+            FileButton outButton = new FileButton("Output file", frame, (file) -> {
+                String filePath = file.getAbsolutePath();
+                // for now only TXT behaviour is defined
+                graphDataController.setOutputFile(filePath, FileType.TXT);
+            }, true);
+
             JPanel panel = new JPanel();
-            panel.add(openButton);
+
+            panel.add(inButton);
+            panel.add(outButton);
+
+
             frame.add(panel);
             frame.setLocationRelativeTo(null); // Center window on screen
             frame.setVisible(true);
