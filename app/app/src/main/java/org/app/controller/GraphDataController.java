@@ -10,7 +10,6 @@ import org.app.model.Point;
 import org.app.model.Vertex;
 
 public class GraphDataController {
-    // for now we store variables here bcs in future we might modify this files
     private String iFileName;
     private String oFileName;
     private FileType outFileType;
@@ -18,9 +17,9 @@ public class GraphDataController {
     private FileHandler fileHandler;
     
 
-    private Vertex[] verticies;
+    private Vertex[] vertices;
     private Map<String, Integer> nameToVertexIndex;
-    private final List<IOnChangedListener<Vertex[]>> onVerticiesChanged = new ArrayList<>();
+    private final List<IOnChangedListener<Vertex[]>> onVerticesChanged = new ArrayList<>();
     private Point[] points;
 
     private final List<IOnChangedListener<Point[]>> onPointsChanged = new ArrayList<>();
@@ -35,12 +34,12 @@ public class GraphDataController {
 
         // refresh our Vertex data
         try {
-            verticies = fileHandler.load_vertices_data(iFileName);
+            vertices = fileHandler.load_vertices_data(iFileName);
         } catch(IOException e) {
             System.out.print("IOException: couldn't read vertices from " + iFileName);
         }
 
-        onVerticiesChanged.forEach(f -> f.onChanged(verticies));
+        onVerticesChanged.forEach(f -> f.onChanged(vertices));
     }
 
 
@@ -59,7 +58,7 @@ public class GraphDataController {
     }
 
     public void registerOnVerticesChanged(IOnChangedListener<Vertex[]> onChanged) {
-        onVerticiesChanged.add(onChanged);
+        onVerticesChanged.add(onChanged);
     }
 
     public void registerOnPointsChanged(IOnChangedListener<Point[]> onChanged) {
@@ -67,7 +66,7 @@ public class GraphDataController {
     }
 
     public Vertex[] gVerticesModels() {
-        return this.verticies;
+        return this.vertices;
     }
 
     public Point[] gPoints() {
@@ -75,12 +74,12 @@ public class GraphDataController {
     }
 
     // saves modified input file to choosen location
-    public void saveVerticiesChangesToFile(String filename) throws IOException {
-        fileHandler.save_vertices_data(filename, this.verticies);
+    public void saveVerticesChangesToFile(String filename) throws IOException {
+        fileHandler.save_vertices_data(filename, this.vertices);
     }
 
     // modifies current input file 
-    public void saveVerticiesChangesToFile() throws IOException {
-        fileHandler.save_vertices_data(this.iFileName, this.verticies);
+    public void saveVerticesChangesToFile() throws IOException {
+        fileHandler.save_vertices_data(this.iFileName, this.vertices);
     }
 }
