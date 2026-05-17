@@ -15,7 +15,7 @@ public class Vertex {
 
     @Override
     public String toString() { 
-        String result = this.name + ":  " + this.ida + ", " + this.idb + ", " + this.weight; 
+        String result = this.name + " " + this.ida + " " + this.idb + " " + this.weight; 
         return result;
-    } 
+    }
 }

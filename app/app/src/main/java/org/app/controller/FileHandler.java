@@ -1,7 +1,9 @@
 package org.app.controller;
 
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -57,9 +59,12 @@ public final class FileHandler {
     }
 
     // save modified vertex data to file
-    public void save_vertices_data(String filename, FileType fileType) {
-
-
+    public void save_vertices_data(String filename, Vertex[] vertices) throws IOException {
+        try (PrintWriter printWriter = new PrintWriter(new FileOutputStream(filename))) {
+            for (int i = 0; i < vertices.length; i++) {
+                printWriter.println(vertices[i].toString());
+            }
+        } 
     }
 
 
@@ -114,11 +119,6 @@ public final class FileHandler {
             default:
                 throw new UnsupportedOperationException("This file type is not supported");
         }
-    }
-
-    // save points data to file
-    public void save_points_data(String filename, FileType fileType) {
-        
     }
     
     // // run algorithm (returns false if error)

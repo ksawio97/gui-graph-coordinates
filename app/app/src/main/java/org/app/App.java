@@ -1,6 +1,8 @@
 package org.app;
 
 
+import java.io.IOException;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -19,7 +21,7 @@ public class App {
             JFrame frame = new JFrame("Graph Coordinates");
             
             GraphDataController graphDataController = new GraphDataController();
- 
+
             graphDataController.registerOnVerticesChanged((verticies) -> {
                 // print all verticies for testing
                 for (Vertex v : verticies) {

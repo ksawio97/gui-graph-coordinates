@@ -13,7 +13,7 @@ public class Point {
 
     @Override
     public String toString() { 
-        String result = this.id + ":  " + this.x + ", " + this.y; 
+        String result = this.id + " " + this.x + " " + this.y; 
         return result;
     } 
 }

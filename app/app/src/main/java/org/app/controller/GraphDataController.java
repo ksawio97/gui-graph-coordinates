@@ -3,12 +3,13 @@ package org.app.controller;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.app.model.FileType;
 import org.app.model.Point;
 import org.app.model.Vertex;
 
-public class GraphDataController implements IGraphDataController {
+public class GraphDataController {
     // for now we store variables here bcs in future we might modify this files
     private String iFileName;
     private String oFileName;
@@ -18,6 +19,7 @@ public class GraphDataController implements IGraphDataController {
     
 
     private Vertex[] verticies;
+    private Map<String, Integer> nameToVertexIndex;
     private final List<IOnChangedListener<Vertex[]>> onVerticiesChanged = new ArrayList<>();
     private Point[] points;
 
@@ -70,5 +72,15 @@ public class GraphDataController implements IGraphDataController {
 
     public Point[] gPoints() {
         return this.points;
+    }
+
+    // saves modified input file to choosen location
+    public void saveVerticiesChangesToFile(String filename) throws IOException {
+        fileHandler.save_vertices_data(filename, this.verticies);
+    }
+
+    // modifies current input file 
+    public void saveVerticiesChangesToFile() throws IOException {
+        fileHandler.save_vertices_data(this.iFileName, this.verticies);
     }
 }
