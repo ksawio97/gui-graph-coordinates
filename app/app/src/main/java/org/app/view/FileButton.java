@@ -1,23 +1,19 @@
 package org.app.view;
 
-import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.*;
+import java.awt.Frame;
 import java.io.File;
 import java.util.function.Consumer;
 
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+
 public class FileButton extends JButton {
 
-    public FileButton(String label, Frame parent, Consumer<File> onFileSelected, boolean fileTxt) {
+    public FileButton(String label, Frame parent, Consumer<File> onFileSelected) {
         super(label);
         addActionListener(event -> {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setDialogTitle("Select Input Text File");
-            
-            if (fileTxt) {
-                FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files (*.txt)", "txt");
-                fileChooser.setFileFilter(filter);
-            }
 
             int result = fileChooser.showOpenDialog(parent);
             if (result == JFileChooser.APPROVE_OPTION) {

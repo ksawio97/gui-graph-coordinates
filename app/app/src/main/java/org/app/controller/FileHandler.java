@@ -2,9 +2,10 @@ package org.app.controller;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.app.model.FileType;
 import org.app.model.Point;
@@ -78,15 +79,40 @@ public final class FileHandler {
     }
 
 
+    private Point[] readPointsFromBin(String filename) throws IOException {
+        List<Point> points = new ArrayList<>();
+        // 3 fields of 8 bytes so 24 bytes 
+        final int RECORD_SIZE = 24;
+
+        try (FileInputStream fis = new FileInputStream(filename)){
+            byte[] buff = new byte[RECORD_SIZE];
+            while (fis.read(buff) == RECORD_SIZE) {
+                ByteBuffer byteBuffer = ByteBuffer.wrap(buff);
+                // we need to switch to order of c binaryfile output
+                byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+                
+                double id = byteBuffer.getDouble();
+                double x  = byteBuffer.getDouble();
+                double y  = byteBuffer.getDouble();
+
+                points.add(new Point(Double.toString(id), x, y));
+            }
+        }
+
+        return points.toArray(new Point[0]);
+    }
+
+
     // load points data from file
     public Point[] load_points_data(String filename, FileType fileType) throws IOException {
         switch (fileType) {
             case FileType.TXT:
                 return readPointsFromTxt(filename);
             case FileType.BIN:
-                throw new UnsupportedOperationException("Not implemented yet");
+
+                return readPointsFromBin(filename);
             default:
-                throw new UnsupportedOperationException("Not implemented yet");
+                throw new UnsupportedOperationException("This file type is not supported");
         }
     }
 

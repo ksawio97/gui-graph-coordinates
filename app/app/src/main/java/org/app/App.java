@@ -2,6 +2,7 @@ package org.app;
 
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -29,7 +30,7 @@ public class App {
             FileButton inButton = new FileButton("Input file", frame, (file) -> {
                 String filePath = file.getAbsolutePath();
                 graphDataController.setInputFile(filePath);
-            }, true);
+            });
 
             graphDataController.registerOnPointsChanged((points) -> {
                 // print all points for testing
@@ -40,9 +41,24 @@ public class App {
 
             FileButton outButton = new FileButton("Output file", frame, (file) -> {
                 String filePath = file.getAbsolutePath();
-                // for now only TXT behaviour is defined
-                graphDataController.setOutputFile(filePath, FileType.TXT);
-            }, true);
+                String fileName = file.getName();
+                String fileExt = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
+                FileType fileType = null;
+
+                switch (fileExt) {
+                    case "txt":
+                        fileType = FileType.TXT;
+                        break;
+                    case "bin":
+                        fileType = FileType.BIN;
+                        break;
+                    default:
+                        JOptionPane.showMessageDialog(null, "Unsupported file format! Only txt and bin are supported", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+
+                }
+                graphDataController.setOutputFile(filePath, fileType);
+            });
 
             JPanel panel = new JPanel();
 
