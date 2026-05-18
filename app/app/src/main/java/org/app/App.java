@@ -22,9 +22,9 @@ public class App {
             
             GraphDataController graphDataController = new GraphDataController();
 
-            graphDataController.registerOnVerticesChanged((verticies) -> {
-                // print all verticies for testing
-                for (Vertex v : verticies) {
+            graphDataController.registerOnVerticesChanged((vertices) -> {
+                // print all vertices for testing
+                for (Vertex v : vertices) {
                     System.out.print(v.toString() + "\n");
                 }
             });
@@ -67,14 +67,10 @@ public class App {
             panel.add(inButton);
             panel.add(outButton);
 
-
             frame.add(panel);
             frame.setLocationRelativeTo(null); // Center window on screen
-            frame.setVisible(true);
-
-
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setSize(400, 300);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setVisible(true);
         });
     }

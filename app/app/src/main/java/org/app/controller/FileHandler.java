@@ -44,18 +44,18 @@ public final class FileHandler {
 
     // load vertex data from file
     public Vertex[] load_vertices_data(String filename) throws IOException {
-        List<Vertex> vericies = new ArrayList<>();
+        List<Vertex> vertices = new ArrayList<>();
         try (FileInputStream fis = new FileInputStream(filename)){
             String[] contents;
             // read line contents
             while ((contents = fileReadLineContents(fis)).length != 0) {
                 if (contents.length != 4)
                     continue;
-                // parse to vericies
-                vericies.add(new Vertex(contents[0], Integer.parseInt(contents[1]), Integer.parseInt(contents[2]), Double.parseDouble(contents[3])));
+                // parse to vertices
+                vertices.add(new Vertex(contents[0], Integer.parseInt(contents[1]), Integer.parseInt(contents[2]), Double.parseDouble(contents[3])));
             }
         }
-        return vericies.toArray(new Vertex[0]);
+        return vertices.toArray(new Vertex[0]);
     }
 
     // save modified vertex data to file
@@ -111,10 +111,9 @@ public final class FileHandler {
     // load points data from file
     public Point[] load_points_data(String filename, FileType fileType) throws IOException {
         switch (fileType) {
-            case FileType.TXT:
+            case TXT:
                 return readPointsFromTxt(filename);
-            case FileType.BIN:
-
+            case BIN:
                 return readPointsFromBin(filename);
             default:
                 throw new UnsupportedOperationException("This file type is not supported");
