@@ -13,6 +13,7 @@ import org.app.model.FileType;
 import org.app.model.Point;
 import org.app.model.Vertex;
 import org.app.view.FileButton;
+import org.app.view.GraphPanel;
 
 
 public class App {
@@ -21,12 +22,11 @@ public class App {
             JFrame frame = new JFrame("Graph Coordinates");
             
             GraphDataController graphDataController = new GraphDataController();
+            GraphPanel graphPanel = new GraphPanel();
 
             graphDataController.registerOnVerticesChanged((vertices) -> {
-                // print all vertices for testing
-                for (Vertex v : vertices) {
-                    System.out.print(v.toString() + "\n");
-                }
+                // Update graph visualization
+                graphPanel.setGraphData(vertices, graphDataController.gPoints());
             });
 
             FileButton inButton = new FileButton("Input file", frame, (file) -> {
@@ -35,10 +35,8 @@ public class App {
             });
 
             graphDataController.registerOnPointsChanged((points) -> {
-                // print all points for testing
-                for (Point point : points) {
-                    System.out.print(point.toString() + "\n");
-                }
+                // Update graph visualization
+                graphPanel.setGraphData(graphDataController.gVerticesModels(), points);
             });
 
             FileButton outButton = new FileButton("Output file", frame, (file) -> {
@@ -62,16 +60,27 @@ public class App {
                 graphDataController.setOutputFile(filePath, fileType);
             });
 
-            JPanel panel = new JPanel();
+            JPanel controlPanel = new JPanel();
+            controlPanel.add(inButton);
+            controlPanel.add(outButton);
 
-            panel.add(inButton);
-            panel.add(outButton);
-
-            frame.add(panel);
+            frame.add(controlPanel, "North");
+            frame.add(graphPanel, "Center");
+            
             frame.setLocationRelativeTo(null); // Center window on screen
-            frame.setSize(400, 300);
+            frame.setSize(900, 750);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setVisible(true);
+            
+            // Load default files from resources
+            try {
+                String inPath = App.class.getResource("/in.txt").getPath();
+                String outPath = App.class.getResource("/out.txt").getPath();
+                graphDataController.setInputFile(inPath);
+                graphDataController.setOutputFile(outPath, FileType.TXT);
+            } catch (Exception e) {
+                System.out.println("Could not load default files: " + e.getMessage());
+            }
         });
     }
 }

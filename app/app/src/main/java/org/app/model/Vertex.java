@@ -13,6 +13,22 @@ public class Vertex {
         this.weight = weight;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public int getIdA() {
+        return ida;
+    }
+
+    public int getIdB() {
+        return idb;
+    }
+
+    public double getWeight() {
+        return weight;
+    }
+
     @Override
     public String toString() { 
         String result = this.name + " " + this.ida + " " + this.idb + " " + this.weight; 

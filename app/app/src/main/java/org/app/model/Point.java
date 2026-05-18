@@ -11,6 +11,18 @@ public class Point {
         this.y = y;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
     @Override
     public String toString() { 
         String result = this.id + " " + this.x + " " + this.y; 
