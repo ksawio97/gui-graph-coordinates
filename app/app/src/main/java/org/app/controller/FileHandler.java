@@ -16,6 +16,8 @@ import org.app.model.Vertex;
 public final class FileHandler {
     private static FileHandler instance;
     
+    private FileHandler() {}
+
     public static FileHandler getInstance() {
         if (instance == null) {
             instance = new FileHandler();

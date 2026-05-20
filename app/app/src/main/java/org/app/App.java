@@ -1,17 +1,16 @@
 package org.app;
 
 
-import java.io.IOException;
-
+import javax.swing.ButtonGroup;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 
 import org.app.controller.GraphDataController;
+import org.app.model.Algorithm;
 import org.app.model.FileType;
-import org.app.model.Point;
-import org.app.model.Vertex;
 import org.app.view.FileButton;
 import org.app.view.GraphPanel;
 
@@ -60,9 +59,30 @@ public class App {
                 graphDataController.setOutputFile(filePath, fileType);
             });
 
+            JToggleButton fruhmanBtn = new JToggleButton("Fruhman");
+            JToggleButton tuttermanBtn = new JToggleButton("Tutterman");
+
+            fruhmanBtn.addActionListener(e -> {
+                graphDataController.setAlgorithm(Algorithm.FR);
+            });
+
+            tuttermanBtn.addActionListener(e -> {
+                graphDataController.setAlgorithm(Algorithm.TUTTE);
+            });
+
+            ButtonGroup group = new ButtonGroup();
+
+            group.add(fruhmanBtn);
+            group.add(tuttermanBtn);
+
+            fruhmanBtn.setSelected(true);
+
             JPanel controlPanel = new JPanel();
             controlPanel.add(inButton);
             controlPanel.add(outButton);
+
+            controlPanel.add(fruhmanBtn);
+            controlPanel.add(tuttermanBtn);
 
             frame.add(controlPanel, "North");
             frame.add(graphPanel, "Center");
@@ -78,6 +98,7 @@ public class App {
                 String outPath = App.class.getResource("/out.txt").getPath();
                 graphDataController.setInputFile(inPath);
                 graphDataController.setOutputFile(outPath, FileType.TXT);
+                graphDataController.setAlgorithm(Algorithm.FR);
             } catch (Exception e) {
                 System.out.println("Could not load default files: " + e.getMessage());
             }
