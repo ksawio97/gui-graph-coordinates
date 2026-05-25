@@ -91,11 +91,11 @@ public class App {
             frame.setSize(900, 750);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setVisible(true);
-            
+        
             // Load default files from resources
             try {
-                String inPath = App.class.getResource("/in.txt").getPath();
-                String outPath = App.class.getResource("/out.txt").getPath();
+                String inPath = java.nio.file.Paths.get(App.class.getResource("/in.txt").toURI()).toFile().getAbsolutePath();
+                String outPath = java.nio.file.Paths.get(App.class.getResource("/out.txt").toURI()).toFile().getAbsolutePath();
                 graphDataController.setInputFile(inPath);
                 graphDataController.setOutputFile(outPath, FileType.TXT);
                 graphDataController.setAlgorithm(Algorithm.FR);

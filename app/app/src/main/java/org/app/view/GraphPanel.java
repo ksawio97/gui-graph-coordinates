@@ -25,12 +25,43 @@ public class GraphPanel extends JPanel {
     private static final Color EDGE_COLOR = new Color(100, 100, 100);
     private static final Color LABEL_COLOR = Color.BLACK;
     private static final int PADDING = 40;
+     //potrzebne zmienne do obrotu grafu
+    private double pitch = 0;
+    private double yaw = 0;
+    private int lastMouseX, lastMouseY;
     
     public GraphPanel() {
         setBackground(Color.WHITE);
         setPreferredSize(new Dimension(900, 700));
         pointMap = new HashMap<>();
-    }
+
+        java.awt.event.MouseAdapter mouseAdapter = new java.awt.event.MouseAdapter() {
+
+        @Override
+        public void mousePressed(java.awt.event.MouseEvent e) {
+            lastMouseX = e.getX();
+            lastMouseY = e.getY();
+        }
+
+        @Override
+        public void mouseDragged(java.awt.event.MouseEvent e) {
+            int dx = e.getX() - lastMouseX;
+            int dy = e.getY() - lastMouseY;
+
+            // Zmiana kątów na podstawie ruchu myszki (czułość obrotu)
+            yaw += dx * 0.01;
+            pitch -= dy * 0.01; 
+
+            lastMouseX = e.getX();
+            lastMouseY = e.getY();
+            
+            // Wymuś ponowne narysowanie grafu
+            repaint();
+        }
+    };
+    addMouseListener(mouseAdapter);
+    addMouseMotionListener(mouseAdapter);
+}
     
     public void setGraphData(Vertex[] vertices, Point[] points) {
         this.vertices = vertices;
@@ -82,6 +113,11 @@ public class GraphPanel extends JPanel {
         double scaleX = (width - 2 * PADDING) / (maxX - minX);
         double scaleY = (height - 2 * PADDING) / (maxY - minY);
         double scale = Math.min(scaleX, scaleY);
+
+        double dataCenterX = (minX + maxX) / 2.0;
+        double dataCenterY = (minY + maxY) / 2.0;
+        int screenCenterX = width / 2;
+        int screenCenterY = height / 2;
         
         // Draw edges first
         g2d.setColor(EDGE_COLOR);
@@ -92,32 +128,43 @@ public class GraphPanel extends JPanel {
             Point p2 = pointMap.get(v.getIdB());
             
             if (p1 != null && p2 != null) {
-                int x1 = (int) (PADDING + (p1.getX() - minX) * scale);
-                int y1 = (int) (PADDING + (p1.getY() - minY) * scale);
-                int x2 = (int) (PADDING + (p2.getX() - minX) * scale);
-                int y2 = (int) (PADDING + (p2.getY() - minY) * scale);
+                int[] pos1 = project3D(p1.getX() - dataCenterX, p1.getY() - dataCenterY, scale);
+                int[] pos2 = project3D(p2.getX() - dataCenterX, p2.getY() - dataCenterY, scale);
                 
-                g2d.drawLine(x1, y1, x2, y2);
+                g2d.drawLine(screenCenterX + pos1[0], screenCenterY + pos1[1], 
+                             screenCenterX + pos2[0], screenCenterY + pos2[1]);
             }
         }
         
         // Draw nodes
         g2d.setColor(NODE_COLOR);
         for (Point p : points) {
-            int x = (int) (PADDING + (p.getX() - minX) * scale);
-            int y = (int) (PADDING + (p.getY() - minY) * scale);
+            int[] pos = project3D(p.getX() - dataCenterX, p.getY() - dataCenterY, scale);
+            int drawX = screenCenterX + pos[0];
+            int drawY = screenCenterY + pos[1];
             
-            g2d.fillOval(x - NODE_RADIUS, y - NODE_RADIUS, 2 * NODE_RADIUS, 2 * NODE_RADIUS);
+            g2d.fillOval(drawX - NODE_RADIUS, drawY - NODE_RADIUS, 2 * NODE_RADIUS, 2 * NODE_RADIUS);
             
             // Draw node label
             g2d.setColor(LABEL_COLOR);
             FontMetrics fm = g2d.getFontMetrics();
             String label = p.getId();
-            int labelX = x - fm.stringWidth(label) / 2;
-            int labelY = y - NODE_RADIUS - 5;
+            int labelX = drawX - fm.stringWidth(label) / 2;
+            int labelY = drawY - NODE_RADIUS - 5;
             g2d.drawString(label, labelX, labelY);
             
             g2d.setColor(NODE_COLOR);
         }
     }
+    private int[] project3D(double x, double y, double scale) {
+        double z = 0; 
+
+        double x1 = x * Math.cos(yaw) - z * Math.sin(yaw);
+        double z1 = x * Math.sin(yaw) + z * Math.cos(yaw);
+
+        double y2 = y * Math.cos(pitch) - z1 * Math.sin(pitch);
+
+        return new int[] { (int)(x1 * scale), (int)(y2 * scale) };
+    }
+
 }

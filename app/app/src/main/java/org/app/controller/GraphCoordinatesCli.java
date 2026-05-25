@@ -8,9 +8,9 @@ import org.app.model.Algorithm;
 import org.app.model.FileType;
 
 public class GraphCoordinatesCli {
-    private static final String CLI_PATH = "./tools/graphcoordinates";
-    
     private static GraphCoordinatesCli instance;
+    private static final boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase().contains("win");
+    private static final String CLI_PATH = IS_WINDOWS ? "C:\\Users\\Olaf\\gui-graph-coordinates\\app\\app\\tools\\graphcoordinates.exe" : "./tools/graphcoordinates";
 
     private GraphCoordinatesCli() {}
     
@@ -21,6 +21,9 @@ public class GraphCoordinatesCli {
 
         return instance;
     }
+    
+
+    
 
     public void execute(String inputFilePath, String outputFilePath, Algorithm alg, FileType fileType, IOnGraphCoordinatesCliExecution onSuccess, Consumer<String> onFail) {
         ProcessBuilder pb = 
